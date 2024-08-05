@@ -11,53 +11,76 @@ import AVFoundation
 class MyCell: UITableViewCell, ReusableView, NibLoadableView {
     
     @IBOutlet weak var thumbnailImage1: UIImageView!
-    @IBOutlet weak var player1: PlayerView!
+    @IBOutlet weak var player1: UIView!
     
     @IBOutlet weak var thumbnailImage2: UIImageView!
-    @IBOutlet weak var player2: PlayerView!
+    @IBOutlet weak var player2: UIView!
     
     @IBOutlet weak var thumbnailImage3: UIImageView!
-    @IBOutlet weak var player3: PlayerView!
+    @IBOutlet weak var player3: UIView!
     
     @IBOutlet weak var thumbnailImage4: UIImageView!
-    @IBOutlet weak var player4: PlayerView!
+    @IBOutlet weak var player4: UIView!
     
-    var currentPlayerIndex = 0 {
+    public var playerAV1 =  AVPlayer()
+    public var playerAV2 =  AVPlayer()
+    public var playerAV3 = AVPlayer()
+    public var playerAV4 = AVPlayer()
+    
+    private var playerLayer: AVPlayerLayer?
+    
+    var playfirstVideo: Bool? {
         didSet {
-            [self.player2, self.player3, self.player4].forEach { (player) in
-                player?.player?.pause()
+            if let status = playfirstVideo, status == true {
+                self.thumbnailImage1.isHidden = true
+                self.playerAV1.play()
+                NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerAV1.currentItem)
             }
-            NotificationCenter.default.removeObserver(self)
-            
-            self.thumbnailImage1.isHidden = true
-            self.player1.player?.seek(to: .zero)
-            self.player1.player?.play()
-            NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self.player1.player?.currentItem)
         }
     }
     
+    var currentPlayerIndex = 0
+    
     var dataArray: [Arr]? {
         didSet {
+            if let layer = self.playerLayer {
+                layer.removeFromSuperlayer()
+                NotificationCenter.default.removeObserver(self,name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+            }
+            
+            
             let image1 = dataArray?[0].thumbnail ?? ""
             let video1 = dataArray?[0].video ?? ""
-            let id1 = 0
             
             let image2 = dataArray?[1].thumbnail ?? ""
             let video2 = dataArray?[1].video ?? ""
-            let id2 = 1
             
             let image3 = dataArray?[2].thumbnail ?? ""
             let video3 = dataArray?[2].video ?? ""
-            let id3 = 2
             
             let image4 = dataArray?[3].thumbnail ?? ""
             let video4 = dataArray?[3].video ?? ""
-            let id4 = 3
             
-            self.loadData(imageURLStr: image1, videoURLStr: video1, imageView: thumbnailImage1, player: player1, id: id1)
-            self.loadData(imageURLStr: image2, videoURLStr: video2, imageView: thumbnailImage2, player: player2, id: id2)
-            self.loadData(imageURLStr: image3, videoURLStr: video3, imageView: thumbnailImage3, player: player3, id: id3)
-            self.loadData(imageURLStr: image4, videoURLStr: video4, imageView: thumbnailImage4, player: player4, id: id4)
+            let imageURL1 = URL(string: image1)
+            let imageURL2 = URL(string: image2)
+            let imageURL3 = URL(string: image3)
+            let imageURL4 = URL(string: image4)
+            
+            thumbnailImage1.downloadImage(from: imageURL1 ?? URL(string: ""))
+            thumbnailImage2.downloadImage(from: imageURL2 ?? URL(string: ""))
+            thumbnailImage3.downloadImage(from: imageURL3 ?? URL(string: ""))
+            thumbnailImage4.downloadImage(from: imageURL4 ?? URL(string: ""))
+            
+            let url1 = URL(string: video1)!
+            let url2 = URL(string: video2)!
+            let url3 = URL(string: video3)!
+            let url4 = URL(string: video4)!
+            
+            setupPlayer(videoView: player1, url: url1, imageView: thumbnailImage1, player: &playerAV1, id: 0)
+            setupPlayer(videoView: player2, url: url2, imageView: thumbnailImage2, player: &playerAV2, id: 1)
+            setupPlayer(videoView: player3, url: url3, imageView: thumbnailImage3, player: &playerAV3, id: 2)
+            setupPlayer(videoView: player4, url: url4, imageView: thumbnailImage4, player: &playerAV4, id: 3)
+            
         }
     }
     
@@ -68,107 +91,100 @@ class MyCell: UITableViewCell, ReusableView, NibLoadableView {
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
         // Configure the view for the selected state
+    }
+    
+    //player setup
+    private func setupPlayer(videoView: UIView, url:URL, imageView: UIImageView, player: inout AVPlayer, id: Int) {
+        
+        //creating player item, player
+        let playerItem = AVPlayerItem(url: url)
+        let avPlayer = AVPlayer(playerItem: playerItem)
+        
+        //creating player layer
+        let avPlayerLayer = AVPlayerLayer(player: avPlayer)
+        avPlayerLayer.frame = CGRect(x: 0, y: 0, width: 200, height: 200)
+        //  avPlayerLayer.videoGravity = .resizeAspectFill
+        avPlayerLayer.backgroundColor = UIColor.clear.cgColor
+        
+        //add layer to video view
+        videoView.layer.addSublayer(avPlayerLayer)
+        
+        //play video
+        let endTime = CMTimeMakeWithSeconds(6, preferredTimescale: 600)
+        avPlayer.playImmediately(atRate: 2.0)
+        avPlayer.currentItem?.forwardPlaybackEndTime = endTime
+        avPlayer.isMuted = true
+        //set player layer to local var
+        self.playerLayer = avPlayerLayer
+        player = avPlayer
+        
+        if (id == 0 && self.tag == 0) {
+            player.play()
+            thumbnailImage1.isHidden = true
+        }else {
+            player.pause()
+        }
+        
+        //set audio session category for audio
+        try! AVAudioSession.sharedInstance().setCategory(.playback)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
     }
     
 }
 
 extension MyCell {
-    
-    private func loadData(imageURLStr: String, videoURLStr: String, imageView: UIImageView, player: PlayerView, id: Int) {
-        let imageURL = URL(string: imageURLStr)
-        
-        imageView.downloadImage(from: imageURL ?? URL(string: ""))
-        
-        let url = URL(string: videoURLStr)
-        if let url {
-            
-            let avPlayer = AVPlayer(url: url)
-            let endTime = CMTimeMakeWithSeconds(6, preferredTimescale: 600)
-            avPlayer.currentItem?.forwardPlaybackEndTime = endTime
-          
-            player.player = avPlayer
-            if (id == 0) {
-              //  player.player?.play()
-                NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.player?.currentItem)
-                
-//                let previewTime = CMTime(seconds: 6, preferredTimescale: CMTimeScale(60))
-//                let timeValue = NSValue(time: previewTime)
-//                let boundaryTime = avPlayer.addBoundaryTimeObserverForTimes([ timeValue ], queue: <#dispatch_queue_t?#>, usingBlock: {[weak self] () -> Void in
-//                  myPlayer.rate = 0
-//                  myPlayer.pause()
-//                  self?.playerDidFinishPlaying()
-//                })
-            }
-            player.player?.rate = 2.0
-            
-            
-            imageView.isHidden = false
-            
-             self.setObserverToPlayer(player: player.player, imageView: imageView)
-        }
-    }
-    
-    private func setObserverToPlayer(player: AVPlayer?, imageView: UIImageView) {
-        if (imageView.isHidden == false) {
-            let interval = CMTime(seconds: 0.3, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-            let _ = player?.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main, using: { elapsed in
-                print("TESTTTT")
-                imageView.isHidden = true
-            })
-        }
-    }
-    
     @objc private func videoDidEnded() {
-        print("CURRNET:", currentPlayerIndex)
+        print("currentPlayerIndex:", currentPlayerIndex)
         print("VIDEOENDED")
         
         NotificationCenter.default.removeObserver(self)
         
         switch currentPlayerIndex {
         case 0:
-            self.player1.player?.pause()
-            self.player1.player?.seek(to: .zero)
+            self.playerAV1.seek(to: .zero)
+            self.playerAV1.pause()
             self.thumbnailImage1.isHidden = false
             
-            self.player2.player?.play()
-            
             currentPlayerIndex += 1
             
-            NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self.player2.player?.currentItem)
+            self.thumbnailImage2.isHidden = true
+            self.playerAV2.play()
+            NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerAV2.currentItem)
+            
             break
         case 1:
-            self.player2.player?.pause()
-            self.player2.player?.seek(to: .zero)
+            self.playerAV2.seek(to: .zero)
+            self.playerAV2.pause()
             self.thumbnailImage2.isHidden = false
             
-            self.player3.player?.play()
             currentPlayerIndex += 1
             
-            NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self.player3.player?.currentItem)
+            self.thumbnailImage3.isHidden = true
+            self.playerAV3.play()
+            NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerAV3.currentItem)
+            
             break
         case 2:
-            self.player3.player?.pause()
-            self.player3.player?.seek(to: .zero)
+            self.playerAV3.pause()
+            self.playerAV3.seek(to: .zero)
             self.thumbnailImage3.isHidden = false
             
-            self.player4.player?.play()
             currentPlayerIndex += 1
             
-            NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self.player4.player?.currentItem)
-            break
-        case 3:
-            self.player4.player?.play()
-            break
-        default:
-            self.thumbnailImage4.isHidden = false
-            self.player4.player?.seek(to: .zero)
-            self.player4.player?.pause()
+            self.thumbnailImage4.isHidden = true
+            self.playerAV4.play()
+            NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerAV4.currentItem)
             
             break
+        default:
+            NotificationCenter.default.removeObserver(self)
+            
+            self.thumbnailImage4.isHidden = false
+            self.playerAV4.seek(to: .zero)
+            self.playerAV4.pause()
+            break
         }
-        //  playerController.dismiss(animated: true, completion: nil)
-        //
     }
 }

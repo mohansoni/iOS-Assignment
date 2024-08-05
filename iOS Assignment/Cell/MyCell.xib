@@ -26,7 +26,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z6F-Cy-MJN">
                                         <rect key="frame" x="0.0" y="0.0" width="193.66666666666666" height="48"/>
                                         <subviews>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JlG-0K-xNI" customClass="PlayerView" customModule="iOS_Assignment" customModuleProvider="target">
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JlG-0K-xNI">
                                                 <rect key="frame" x="0.0" y="0.0" width="193.66666666666666" height="48"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             </view>
@@ -49,7 +49,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9wt-ua-HBo">
                                         <rect key="frame" x="198.66666666666663" y="0.0" width="193.33333333333337" height="48"/>
                                         <subviews>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sd1-xE-Kdk" customClass="PlayerView" customModule="iOS_Assignment" customModuleProvider="target">
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sd1-xE-Kdk">
                                                 <rect key="frame" x="0.0" y="0.0" width="193.33333333333334" height="48"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             </view>
@@ -77,7 +77,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="08J-Y4-Xte">
                                         <rect key="frame" x="0.0" y="0.0" width="193.66666666666666" height="48"/>
                                         <subviews>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ixr-AG-XJO" customClass="PlayerView" customModule="iOS_Assignment" customModuleProvider="target">
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ixr-AG-XJO">
                                                 <rect key="frame" x="0.0" y="0.0" width="193.66666666666666" height="48"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             </view>
@@ -100,7 +100,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5UX-JC-ADx">
                                         <rect key="frame" x="198.66666666666663" y="0.0" width="193.33333333333337" height="48"/>
                                         <subviews>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7ML-Fx-2oZ" customClass="PlayerView" customModule="iOS_Assignment" customModuleProvider="target">
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7ML-Fx-2oZ">
                                                 <rect key="frame" x="0.0" y="0.0" width="193.33333333333334" height="48"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             </view>
@@ -134,10 +134,10 @@
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
-                <outlet property="player1" destination="JlG-0K-xNI" id="ShC-hm-v7k"/>
-                <outlet property="player2" destination="Sd1-xE-Kdk" id="AWY-YG-Ml1"/>
-                <outlet property="player3" destination="ixr-AG-XJO" id="xsC-0b-PhW"/>
-                <outlet property="player4" destination="7ML-Fx-2oZ" id="fMy-jC-RbJ"/>
+                <outlet property="player1" destination="JlG-0K-xNI" id="51I-hd-8dO"/>
+                <outlet property="player2" destination="Sd1-xE-Kdk" id="w0j-Nh-ScU"/>
+                <outlet property="player3" destination="ixr-AG-XJO" id="tni-zZ-HRs"/>
+                <outlet property="player4" destination="7ML-Fx-2oZ" id="Zeh-bH-Vxf"/>
                 <outlet property="thumbnailImage1" destination="RhI-tC-MQc" id="AAm-iu-sVj"/>
                 <outlet property="thumbnailImage2" destination="I8s-Fj-dah" id="lYj-he-FJB"/>
                 <outlet property="thumbnailImage3" destination="WyE-1h-V5E" id="bBr-4Y-Ywk"/>
