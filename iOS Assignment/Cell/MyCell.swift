@@ -114,6 +114,8 @@ class MyCell: UITableViewCell, ReusableView, NibLoadableView {
         let endTime = CMTimeMakeWithSeconds(6, preferredTimescale: 600)
         avPlayer.playImmediately(atRate: 2.0)
         avPlayer.currentItem?.forwardPlaybackEndTime = endTime
+        avPlayer.currentItem?.preferredForwardBufferDuration = TimeInterval(1)
+        avPlayer.currentItem?.canUseNetworkResourcesForLiveStreamingWhilePaused = false
         avPlayer.isMuted = true
         //set player layer to local var
         self.playerLayer = avPlayerLayer
@@ -135,11 +137,14 @@ class MyCell: UITableViewCell, ReusableView, NibLoadableView {
 }
 
 extension MyCell {
-    @objc private func videoDidEnded() {
+    @objc private func videoDidEnded(_ notification: Notification) {
         print("currentPlayerIndex:", currentPlayerIndex)
         print("VIDEOENDED")
         
         NotificationCenter.default.removeObserver(self)
+        
+        let error = notification.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error
+        print("Error:", error)
         
         switch currentPlayerIndex {
         case 0:
