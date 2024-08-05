@@ -40,8 +40,9 @@ class ViewController: UIViewController {
 // MARK: - UITableviewDelegate and UITableviewDataSource Methods.
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
+   
     
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let dataCount = reelsData?.reels.count ?? 0
         if dataCount == 0 {
             self.tableView.setEmptyMessage("No Data Available")
@@ -49,10 +50,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             self.tableView.restore()
         }
         return dataCount
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-       return 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -63,19 +60,20 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 700
+        return screenHeight * 0.75
     }
     
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let videoCell = (cell as? MyCell) else { return }
-        let visibleCells = tableView.visibleCells
-        let minIndex = visibleCells.startIndex
-        if tableView.visibleCells.firstIndex(of: cell) == minIndex {
-            videoCell.currentPlayerIndex = 0
-            videoCell.playfirstVideo = true
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        for item in tableView.indexPathsForVisibleRows! {
+          if tableView.bounds.contains(tableView.rectForRow(at: item)) {
+              guard let fullyVisibleCell = tableView.cellForRow(at: item) as? MyCell else { return }
+              fullyVisibleCell.currentPlayerIndex = 0
+              fullyVisibleCell.playfirstVideo = true
+     
+          }
         }
-    }
-    
+      }
+
     func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let videoCell = cell as? MyCell else { return }
 
