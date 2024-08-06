@@ -98,13 +98,14 @@ class MyCell: UITableViewCell, ReusableView, NibLoadableView {
     private func setupPlayer(videoView: UIView, url:URL, imageView: UIImageView, player: inout AVPlayer, id: Int) {
         
         //creating player item, player
-        let playerItem = AVPlayerItem(url: url)
+        let asset = AVAsset(url: url)
+        let playerItem = AVPlayerItem(asset: asset)
         let avPlayer = AVPlayer(playerItem: playerItem)
         
         //creating player layer
         let avPlayerLayer = AVPlayerLayer(player: avPlayer)
         avPlayerLayer.frame = CGRect(x: 0, y: 0, width: 200, height: 200)
-        //  avPlayerLayer.videoGravity = .resizeAspectFill
+        avPlayerLayer.videoGravity = .resizeAspect
         avPlayerLayer.backgroundColor = UIColor.clear.cgColor
         
         //add layer to video view
@@ -112,17 +113,19 @@ class MyCell: UITableViewCell, ReusableView, NibLoadableView {
         
         //play video
         let endTime = CMTimeMakeWithSeconds(6, preferredTimescale: 600)
-        avPlayer.playImmediately(atRate: 2.0)
         avPlayer.currentItem?.forwardPlaybackEndTime = endTime
         avPlayer.currentItem?.preferredForwardBufferDuration = TimeInterval(1)
         avPlayer.currentItem?.canUseNetworkResourcesForLiveStreamingWhilePaused = false
+        avPlayer.automaticallyWaitsToMinimizeStalling = false
         avPlayer.isMuted = true
+        
         //set player layer to local var
         self.playerLayer = avPlayerLayer
         player = avPlayer
         
         if (id == 0 && self.tag == 0) {
-            player.play()
+            player.playImmediately(atRate: 2.0)
+           // player.play()
             thumbnailImage1.isHidden = true
         }else {
             player.pause()
@@ -155,7 +158,8 @@ extension MyCell {
             currentPlayerIndex += 1
             
             self.thumbnailImage2.isHidden = true
-            self.playerAV2.play()
+          //  self.playerAV2.play()
+            self.playerAV2.playImmediately(atRate: 2.0)
             NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerAV2.currentItem)
             
             break
@@ -167,7 +171,8 @@ extension MyCell {
             currentPlayerIndex += 1
             
             self.thumbnailImage3.isHidden = true
-            self.playerAV3.play()
+          //  self.playerAV3.play()
+            self.playerAV3.playImmediately(atRate: 2.0)
             NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerAV3.currentItem)
             
             break
@@ -179,7 +184,8 @@ extension MyCell {
             currentPlayerIndex += 1
             
             self.thumbnailImage4.isHidden = true
-            self.playerAV4.play()
+          //  self.playerAV4.play()
+            self.playerAV4.playImmediately(atRate: 2.0)
             NotificationCenter.default.addObserver(self, selector: #selector(videoDidEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerAV4.currentItem)
             
             break
